@@ -1,6 +1,5 @@
 package com.ecommerce.dto;
 
-import com.ecommerce.domain.Category;
 import lombok.Builder;
 
 @Builder
@@ -10,7 +9,7 @@ public record CategoryResponse(
         Boolean isDeleted,
         String description,
         String icon,
-        CategoryResponse parentCategory
+        Integer parentCategoryId
 
 ) {
 }

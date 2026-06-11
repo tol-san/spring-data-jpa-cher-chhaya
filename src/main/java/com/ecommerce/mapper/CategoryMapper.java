@@ -13,5 +13,6 @@ public interface CategoryMapper {
     @Mapping(target = "isDeleted", ignore = true)
     Category mapCreateCategoryRequestToCategory(CreateCategoryRequest request);
 
+    @Mapping(target = "parentCategoryId", source = "parentCategory.id")
     CategoryResponse mapCategoryToCategoryResponse(Category category);
 }

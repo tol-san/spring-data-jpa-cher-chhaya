@@ -1,6 +1,5 @@
 package com.ecommerce.dto;
 
-import com.ecommerce.domain.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
