@@ -20,7 +20,6 @@ public class Category {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-
     @Column(nullable = false)
     private Boolean isDeleted;
 
@@ -32,5 +31,6 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
 
 }
