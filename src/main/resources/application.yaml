@@ -1,3 +1,7 @@
+file:
+  storage-path: "C:/Users/tolsa/Desktop/upload-image/"
+  client-path: "/file"
+  base-uri: "http://localhost:${server.port}${file.client-path}/"
 spring:
   application:
     name: e-commerce
@@ -7,6 +11,7 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,3 +19,5 @@ spring:
     properties:
       hibernate:
         format_sql: true
+server:
+  port: 8080

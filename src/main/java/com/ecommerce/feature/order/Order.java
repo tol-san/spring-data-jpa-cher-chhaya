@@ -1,4 +1,4 @@
-package com.ecommerce.domain;
+package com.ecommerce.feature.order;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

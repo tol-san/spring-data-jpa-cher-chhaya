@@ -1,8 +1,7 @@
-package com.ecommerce.mapper;
+package com.ecommerce.feature.category;
 
-import com.ecommerce.domain.Category;
-import com.ecommerce.dto.CategoryResponse;
-import com.ecommerce.dto.CreateCategoryRequest;
+import com.ecommerce.feature.category.dto.CategoryResponse;
+import com.ecommerce.feature.category.dto.CreateCategoryRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

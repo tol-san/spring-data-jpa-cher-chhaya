@@ -1,11 +1,7 @@
-package com.ecommerce.service.impl;
+package com.ecommerce.feature.category;
 
-import com.ecommerce.domain.Category;
-import com.ecommerce.dto.CreateCategoryRequest;
-import com.ecommerce.dto.CategoryResponse;
-import com.ecommerce.mapper.CategoryMapper;
-import com.ecommerce.repository.CategoryRepository;
-import com.ecommerce.service.CategoryService;
+import com.ecommerce.feature.category.dto.CreateCategoryRequest;
+import com.ecommerce.feature.category.dto.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

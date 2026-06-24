@@ -1,7 +1,7 @@
-package com.ecommerce.repository;
+package com.ecommerce.feature.product;
 
-import com.ecommerce.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
+    boolean existsByName(String name);
 }

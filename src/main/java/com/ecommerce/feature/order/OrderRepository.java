@@ -1,6 +1,5 @@
-package com.ecommerce.repository;
+package com.ecommerce.feature.order;
 
-import com.ecommerce.domain.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
