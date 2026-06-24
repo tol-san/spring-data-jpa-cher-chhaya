@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,10 +28,60 @@ public class FileUploadServiceImpl implements FileUploadService {
     private String baseUri;
 
     @Override
+    public List<FileUploadResponse> uploadMultiple(MultipartFile[] files) {
+        List<FileUploadResponse> responses = new ArrayList<>();
+        for (var file : files) {
+            String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
+            String fileName = UUID.randomUUID() + "." + ext;
+            Path path = Paths.get(storageLocation, fileName);
+            try {
+                Files.copy(file.getInputStream(), path);
+            } catch (IOException e) {
+                throw new ResponseStatusException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "File has been field to upload"
+                );
+            }
+            responses.add(
+                    FileUploadResponse.builder()
+                            .name(fileName)
+                            .mediaType(file.getContentType())
+                            .size(file.getSize())
+                            .uri(baseUri + fileName)
+                            .build()
+            );
+        }
+
+        return responses;
+    }
+
+    @Override
+    public void deleteFile(String name) {
+        try {
+            Path path = Paths.get(storageLocation, name);
+
+            boolean deleted = Files.deleteIfExists(path);
+
+            if (!deleted) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "File not found: " + name
+                );
+            }
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to delete file: " + name
+            );
+        }
+    }
+
+    @Override
     public FileUploadResponse upload(MultipartFile file) {
         String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
         String fileName = UUID.randomUUID() + "." + ext;
-        Path path = Paths.get(storageLocation + fileName);
+        Path path = Paths.get(storageLocation, fileName);
         try {
             Files.copy(file.getInputStream(), path);
         } catch (IOException e) {
@@ -42,7 +94,7 @@ public class FileUploadServiceImpl implements FileUploadService {
                 .name(fileName)
                 .mediaType(file.getContentType())
                 .size(file.getSize())
-                .uri(baseUri+fileName)
+                .uri(baseUri + fileName)
                 .build();
     }
 }
