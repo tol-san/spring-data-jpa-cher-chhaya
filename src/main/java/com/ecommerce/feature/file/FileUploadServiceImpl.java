@@ -2,7 +2,12 @@ package com.ecommerce.feature.file;
 
 import com.ecommerce.feature.file.dto.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.SortDirection;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,11 +20,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FileUploadServiceImpl implements FileUploadService {
 
+
+    private final FileUploadRepository fileUploadRepository;
+    private final FileUploadMapper fileUploadMapper;
 
     @Value("${file.storage-path}")
     private String storageLocation;
@@ -28,35 +37,21 @@ public class FileUploadServiceImpl implements FileUploadService {
     private String baseUri;
 
     @Override
-    public List<FileUploadResponse> uploadMultiple(MultipartFile[] files) {
-        List<FileUploadResponse> responses = new ArrayList<>();
-        for (var file : files) {
-            String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
-            String fileName = UUID.randomUUID() + "." + ext;
-            Path path = Paths.get(storageLocation, fileName);
-            try {
-                Files.copy(file.getInputStream(), path);
-            } catch (IOException e) {
-                throw new ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "File has been field to upload"
-                );
-            }
-            responses.add(
-                    FileUploadResponse.builder()
-                            .name(fileName)
-                            .mediaType(file.getContentType())
-                            .size(file.getSize())
-                            .uri(baseUri + fileName)
-                            .build()
-            );
-        }
-
-        return responses;
+    public List<FileUploadResponse> uploadMultiple(List<MultipartFile> files) {
+        return files.stream()
+                .map(this::saveFile)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteFile(String name) {
+        var file = fileUploadRepository.findByName(name)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "File has not been found"
+                ));
+
+        fileUploadRepository.delete(file);
         try {
             Path path = Paths.get(storageLocation, name);
 
@@ -65,7 +60,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             if (!deleted) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "File not found: " + name
+                        "File has not been found: " + name
                 );
             }
 
@@ -78,10 +73,35 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
+    public Page<FileUploadResponse> findAll(int pageNumber, int pageSize) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id" );
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+        Page<FileUpload> files = fileUploadRepository.findAll(pageRequest);
+        return files.map(fileUploadMapper::toDto);
+    }
+
+    @Override
+    public FileUploadResponse findByName(String name) {
+        return fileUploadRepository.findByName(name)
+                .map(fileUploadMapper::toDto)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "File has been not found"
+                ));
+    }
+
+    @Override
     public FileUploadResponse upload(MultipartFile file) {
+        return saveFile(file);
+    }
+
+
+
+    private  FileUploadResponse saveFile(MultipartFile file) {
         String ext = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
-        String fileName = UUID.randomUUID() + "." + ext;
-        Path path = Paths.get(storageLocation, fileName);
+        String fileName = UUID.randomUUID().toString();
+        Path path = Paths.get(storageLocation, fileName + "." + ext);
+
         try {
             Files.copy(file.getInputStream(), path);
         } catch (IOException e) {
@@ -90,11 +110,15 @@ public class FileUploadServiceImpl implements FileUploadService {
                     "File has been field to upload"
             );
         }
-        return FileUploadResponse.builder()
-                .name(fileName)
-                .mediaType(file.getContentType())
-                .size(file.getSize())
-                .uri(baseUri + fileName)
-                .build();
+
+        FileUpload fileUpload = new FileUpload();
+        fileUpload.setName(fileName);
+        fileUpload.setExtension(ext);
+        fileUpload.setCaption("Random caption");
+        fileUpload.setSize(file.getSize());
+        fileUpload.setMediaType(file.getContentType());
+        fileUploadRepository.save(fileUpload);
+
+        return fileUploadMapper.toDto(fileUpload);
     }
 }

@@ -2,6 +2,7 @@ package com.ecommerce.feature.file;
 
 import com.ecommerce.feature.file.dto.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,19 @@ public class FileUploadController {
 
     private final FileUploadService fileUploadService;
 
+    @GetMapping
+    public Page<FileUploadResponse> findAll(
+            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @RequestParam(required = false, defaultValue = "1") int pageSize
+    ) {
+        return fileUploadService.findAll(pageNumber, pageSize);
+    }
+
+    @GetMapping("/{name}")
+    public FileUploadResponse findByName(@PathVariable String name) {
+        return fileUploadService.findByName(name);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FileUploadResponse upload(@RequestPart MultipartFile file) {
@@ -23,7 +37,7 @@ public class FileUploadController {
 
     @PostMapping("/multiple")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<FileUploadResponse> uploadMultiple(@RequestPart MultipartFile[] files) {
+    public List<FileUploadResponse> uploadMultiple(@RequestPart List<MultipartFile> files) {
         return fileUploadService.uploadMultiple(files);
     }
 
