@@ -39,6 +39,6 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime orderedAt;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderLine> orderLines;
 }

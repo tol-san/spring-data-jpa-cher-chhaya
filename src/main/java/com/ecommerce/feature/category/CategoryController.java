@@ -25,7 +25,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<CategoryResponse> getAllCategory(
+    public List<CategoryResponse> getAll(
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "025") Integer pageSize
     ){
@@ -33,14 +33,14 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public CategoryResponse getCategory(
+    public CategoryResponse getById(
             @PathVariable Integer id
     ){
         return categoryService.getCategoryById(id);
     }
 
     @GetMapping("/{id}/subcategories")
-    public List<CategoryResponse> getSubCategory(
+    public List<CategoryResponse> getSubCategoryById(
             @PathVariable Integer id
     ){
         return categoryService.getSubCategoryById(id);
@@ -49,7 +49,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void hardDeleteCategory(
+    public void hardDeleteById(
             @PathVariable Integer id
     ){
         categoryService.hardDeleteCategoryById(id);
@@ -57,7 +57,7 @@ public class CategoryController {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void softDeleteCategory(
+    public void softDeleteById(
             @PathVariable Integer id
     ){
         categoryService.softDeleteCategory(id);
@@ -66,7 +66,7 @@ public class CategoryController {
 
     @PatchMapping("/update/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCategory(
+    public void updateById(
             @PathVariable Integer id,
             @Valid @RequestBody CreateCategoryRequest request
     ){
